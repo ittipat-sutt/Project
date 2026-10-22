@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class SmartDevice {
   SmartDevice({
+    required this.id,
     required this.name,
     required this.icon,
     required this.color,
@@ -10,6 +11,7 @@ class SmartDevice {
     this.schedule,
   });
 
+  final String id;
   final String name;
   final IconData icon;
   final Color color;

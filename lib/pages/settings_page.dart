@@ -1,8 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../widgets/app_card.dart';
+import 'simulator_page.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
+  const SettingsPage({super.key, required this.role, required this.roleStatus});
+
+  final String role;
+  final String roleStatus;
   @override
   State<SettingsPage> createState() => _SettingsPageState();
 }
@@ -50,6 +55,31 @@ class _SettingsPageState extends State<SettingsPage> {
             children: [
               ListTile(
                 contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.account_circle_rounded),
+                title: Text(
+                  'Signed in as: ${FirebaseAuth.instance.currentUser?.email ?? ''}',
+                ),
+                subtitle: Text(
+                  'UID: ${FirebaseAuth.instance.currentUser?.uid ?? ''}\n'
+                  '${widget.roleStatus}',
+                ),
+                isThreeLine: true,
+                trailing: Chip(label: Text(widget.role.toUpperCase())),
+              ),
+              const Divider(),
+              if (widget.role == 'admin')
+                ListTile(
+                  leading: const Icon(Icons.developer_board_rounded),
+                  title: const Text('ESP32 Simulator'),
+                  subtitle: const Text('Send simulated sensor values through the API'),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const SimulatorPage()),
+                  ),
+                ),
+              if (widget.role == 'admin') const Divider(),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.notifications_active_rounded),
                 title: const Text('Energy alerts'),
                 subtitle: const Text('Notify when usage exceeds your limit'),
@@ -69,6 +99,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 icon: Icons.info_outline_rounded,
                 title: 'About project',
                 value: 'Smart Room Energy v1.0',
+              ),
+              const Divider(),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.logout_rounded),
+                title: const Text('Sign out'),
+                onTap: () => FirebaseAuth.instance.signOut(),
               ),
             ],
           ),
