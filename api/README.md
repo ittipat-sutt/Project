@@ -2,7 +2,7 @@
 
 This server accepts simulated or ESP32 telemetry and writes it to Firebase at
 `telemetry/latest`. It only accepts Firebase-authenticated accounts whose
-Realtime Database role is `admin`.
+Realtime Database role is `admin`, or an ESP32 with the configured device key.
 
 ## Local run
 
@@ -13,6 +13,10 @@ Realtime Database role is `admin`.
    private key**. Keep the downloaded JSON secret. Put its complete JSON on one
    line in `FIREBASE_SERVICE_ACCOUNT_JSON`.
 5. Run `npm start`. Check `http://localhost:3000/health`.
+
+Set `ESP32_DEVICE_KEY` to a long random value. Put the same value in the ESP32
+sketch without committing it. This authorizes physical device posts without
+giving the ESP32 a human Firebase account.
 
 Do not commit `.env` or the private-key file.
 

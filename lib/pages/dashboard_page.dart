@@ -96,44 +96,7 @@ class DashboardPage extends StatelessWidget {
         const SizedBox(height: 24),
         const SectionTitle('Live monitoring'),
         const SizedBox(height: 12),
-        GridView.count(
-          crossAxisCount: 2,
-          childAspectRatio: 1.45,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          children: const [
-            _Metric(
-              icon: Icons.bolt_rounded,
-              label: 'Voltage',
-              value: '220.5',
-              unit: 'V',
-              color: Color(0xFF01A9E7),
-            ),
-            _Metric(
-              icon: Icons.electric_meter_rounded,
-              label: 'Current',
-              value: '3.42',
-              unit: 'A',
-              color: Color(0xFF7668F2),
-            ),
-            _Metric(
-              icon: Icons.energy_savings_leaf_rounded,
-              label: 'Energy today',
-              value: '4.82',
-              unit: 'kWh',
-              color: Color(0xFF00B894),
-            ),
-            _Metric(
-              icon: Icons.payments_rounded,
-              label: 'Estimated cost',
-              value: '22.18',
-              unit: 'THB',
-              color: Color(0xFFFF9F43),
-            ),
-          ],
-        ),
+        const _LiveMetrics(),
         const SizedBox(height: 26),
         SectionTitle(
           'Energy today',
@@ -271,6 +234,79 @@ class _LiveTelemetry extends StatelessWidget {
                 ],
               ],
             ),
+          );
+        },
+      );
+}
+
+class _LiveMetrics extends StatelessWidget {
+  const _LiveMetrics();
+
+  double _number(Map<dynamic, dynamic>? value, String key) =>
+      (value?[key] as num?)?.toDouble() ?? 0;
+
+  @override
+  Widget build(BuildContext context) => StreamBuilder<DatabaseEvent>(
+        stream: appDatabase.ref('telemetry/latest').onValue,
+        builder: (context, snapshot) {
+          final data = snapshot.data?.snapshot.value as Map?;
+          final voltage = _number(data, 'voltage');
+          final current = _number(data, 'current');
+          final energy = _number(data, 'energy');
+          final temperature = _number(data, 'temperature');
+          final humidity = _number(data, 'humidity');
+          const electricityRate = 4.60;
+          return GridView.count(
+            crossAxisCount: 2,
+            childAspectRatio: 1.45,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            children: [
+              _Metric(
+                icon: Icons.bolt_rounded,
+                label: 'Voltage',
+                value: voltage.toStringAsFixed(1),
+                unit: 'V',
+                color: const Color(0xFF01A9E7),
+              ),
+              _Metric(
+                icon: Icons.electric_meter_rounded,
+                label: 'Current',
+                value: current.toStringAsFixed(2),
+                unit: 'A',
+                color: const Color(0xFF7668F2),
+              ),
+              _Metric(
+                icon: Icons.energy_savings_leaf_rounded,
+                label: 'Energy today',
+                value: energy.toStringAsFixed(3),
+                unit: 'kWh',
+                color: const Color(0xFF00B894),
+              ),
+              _Metric(
+                icon: Icons.payments_rounded,
+                label: 'Estimated cost',
+                value: (energy * electricityRate).toStringAsFixed(2),
+                unit: 'THB',
+                color: const Color(0xFFFF9F43),
+              ),
+              _Metric(
+                icon: Icons.thermostat_rounded,
+                label: 'Temperature',
+                value: temperature.toStringAsFixed(1),
+                unit: '°C',
+                color: const Color(0xFFF06543),
+              ),
+              _Metric(
+                icon: Icons.water_drop_rounded,
+                label: 'Humidity',
+                value: humidity.toStringAsFixed(1),
+                unit: '%',
+                color: const Color(0xFF38A3DB),
+              ),
+            ],
           );
         },
       );
